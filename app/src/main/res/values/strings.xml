@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Econome</string>
+    <string name="carrier_rate_warning">We will send you a One time SMS message. Carrier rates may apply</string>
+    <string name="phone_number_hint">Your phone number</string>
+    <string name="button_next">Next</string>
+    <string name="empty_phone_input">Insert your phone number</string>
+    <string name="invalid_pin">Invalid code inserted</string>
+    <string name="cancel">Cancel</string>
+    <string name="invalid_phone_number">Invalid phone number</string>
+    <string name="resend_code">Didn\'t receive the code?</string>
+    <string name="resend_code_button">Re-send SMS</string>
+    <string name="verification_code">Verification Code</string>
+    <string name="pin_instruction">Please type the code sent to</string>
+    <string name="title_home">BILL</string>
+    <string name="menu_funds">FUNDS</string>
+    <string name="menu_group">GROUP</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="empty_expenses_list">No expenses created</string>
+    <string name="search_expense_hint">Search expense</string>
+</resources>
