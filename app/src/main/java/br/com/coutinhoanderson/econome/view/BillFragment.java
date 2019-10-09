@@ -6,7 +6,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -30,7 +30,6 @@ import java.util.Objects;
 
 import br.com.coutinhoanderson.econome.R;
 import br.com.coutinhoanderson.econome.adapter.ExpenseAdapter;
-import br.com.coutinhoanderson.econome.model.EmptyRecyclerView;
 import br.com.coutinhoanderson.econome.model.Expense;
 
 
@@ -39,8 +38,7 @@ public class BillFragment extends Fragment {
     public BillFragment() {
     }
 
-    private EmptyRecyclerView expenseList;
-    private TextView emptyText;
+    private RecyclerView expenseList;
     private EditText recyclerFilter;
     private List<Expense> expenses;
     private ExpenseAdapter expenseAdapter;
@@ -75,7 +73,6 @@ public class BillFragment extends Fragment {
     }
     private void initView(View view){
         expenseList = view.findViewById(R.id.list);
-        emptyText = view.findViewById(android.R.id.empty);
         recyclerFilter = view.findViewById(R.id.editText);
     }
 
@@ -85,8 +82,6 @@ public class BillFragment extends Fragment {
         expenses = new ArrayList<>();
         expenseAdapter = new ExpenseAdapter(getContext(), expenses);
         expenseList.setAdapter(expenseAdapter);
-        expenseList.setEmptyView(emptyText);
-        expenseList.setLayoutManager(new LinearLayoutManager(getContext()));
         FirebaseServer fs = new FirebaseServer();
         fs.fetchDataFromFirebase();
     }

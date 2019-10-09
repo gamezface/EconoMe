@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="br.com.coutinhoanderson.econome">
-
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,12 +11,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".view.AddExpenseActivity"></activity>
+        <activity android:name=".view.AddExpenseActivity" />
         <activity
             android:name=".view.PINActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.HomescreenActivity"
+            android:windowSoftInputMode="adjustPan|adjustResize"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.LogInActivity"
@@ -32,7 +33,4 @@
             </intent-filter>
         </activity>
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
-
 </manifest>
