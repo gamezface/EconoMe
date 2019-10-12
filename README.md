@@ -7,4 +7,4 @@ Project aiming to use in practice the principles taught in Distributed Systems &
 Topic: Economy, financial education.
 
 ### Members
-Anderson Barbosa, Bruna Vaz, Mateus Santos e Henrique Alberone
+Anderson Barbosa, Bruna Vaz, Mateus Santos and Henrique Alberone
