@@ -22,11 +22,12 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import br.com.coutinhoanderson.econome.R;
+import br.com.coutinhoanderson.econome.model.User;
 
 
 public class PINActivity extends AppCompatActivity {
@@ -34,6 +35,7 @@ public class PINActivity extends AppCompatActivity {
     Pinview pin;
     Button resendCodeButton;
     TextView pinErrorText;
+    User user;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     private FirebaseAuth mAuth;
     private String mVerificationId;
@@ -44,9 +46,11 @@ public class PINActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pin);
+        user = new User();
         initView();
         PINController pinController = new PINController(this);
         String phoneNumber = getIntent().getStringExtra("PHONE_NUMBER");
+        user.setPhone(phoneNumber);
         mAuth = FirebaseAuth.getInstance();
         resendCodeButton.setPaintFlags(resendCodeButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         pin.setPinViewEventListener((pinview, fromUser) -> pinController.verifyPhoneNumberWithCode(mVerificationId, pinview.getValue()));
@@ -119,13 +123,25 @@ public class PINActivity extends AppCompatActivity {
             mAuth.signInWithCredential(credential)
                     .addOnCompleteListener(activity, task -> {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = Objects.requireNonNull(task.getResult()).getUser();
-                            pin.setValue(Objects.requireNonNull(credential.getSmsCode()));
-                            Intent intent = new Intent(PINActivity.this, HomescreenActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            Handler handler = new Handler();
-                            handler.postDelayed(() -> startActivity(intent), 500);
+                            try {
+                                Log.d(TAG, "signInWithCredential:success");
+                                FirebaseUser fUser = task.getResult().getUser();
+                                String name = getIntent().getStringExtra("USER_NAME");
+                                String budget = getIntent().getStringExtra("USER_BUDGET");
+                                user.setName(name);
+                                user.setBudget(budget);
+                                FirebaseDatabase.getInstance().getReference("Users")
+                                        .child(FirebaseAuth.getInstance()
+                                                .getCurrentUser().getUid()).setValue(user).addOnCompleteListener(task1 -> {
+                                    pin.setValue(credential.getSmsCode());
+                                    Intent intent = new Intent(PINActivity.this, HomescreenActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    Handler handler = new Handler();
+                                    handler.postDelayed(() -> startActivity(intent), 500);
+                                });
+                            } catch (Exception e) {
+                                Log.d("Error", e.getMessage());
+                            }
                         } else {
                             // Sign in failed, display a message and update the UI
                             Log.w(TAG, "signInWithCredential:failure", task.getException());

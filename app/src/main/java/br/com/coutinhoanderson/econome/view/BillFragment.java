@@ -2,12 +2,6 @@ package br.com.coutinhoanderson.econome.view;
 
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -17,12 +11,17 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +30,7 @@ import java.util.Objects;
 import br.com.coutinhoanderson.econome.R;
 import br.com.coutinhoanderson.econome.adapter.ExpenseAdapter;
 import br.com.coutinhoanderson.econome.model.Expense;
+import br.com.coutinhoanderson.econome.model.User;
 
 
 public class BillFragment extends Fragment {
@@ -44,6 +44,7 @@ public class BillFragment extends Fragment {
     private ExpenseAdapter expenseAdapter;
     private ChildEventListener dataListener;
     private DatabaseReference ref;
+    TextView userBudget;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class BillFragment extends Fragment {
     private void initView(View view){
         expenseList = view.findViewById(R.id.list);
         recyclerFilter = view.findViewById(R.id.editText);
+        userBudget = view.findViewById(R.id.user_budget);
     }
 
     @Override
@@ -101,6 +103,20 @@ public class BillFragment extends Fragment {
 
     private class FirebaseServer {
         void fetchDataFromFirebase() {
+            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("/Users/" + FirebaseAuth.getInstance().getUid());
+            reference.getDatabase();
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    User user = (dataSnapshot.getValue(User.class));
+                    userBudget.setText(user.getBudget());
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
+
             ref = FirebaseDatabase.getInstance().getReference(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid() + "/expenses");
             dataListener = new ChildEventListener() {
                 @Override
