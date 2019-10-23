@@ -1,8 +1,9 @@
 package br.com.coutinhoanderson.econome.view;
 
 
+import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,11 +22,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.coutinhoanderson.econome.R;
 import br.com.coutinhoanderson.econome.adapter.FundsAdapter;
+import br.com.coutinhoanderson.econome.model.Group;
 import br.com.coutinhoanderson.econome.model.User;
 
 public class GroupFragment extends Fragment {
@@ -60,64 +64,35 @@ public class GroupFragment extends Fragment {
 
     private class FirebaseServer {
         void createGroup() {
-            ref = FirebaseDatabase.getInstance().getReference("Groups/"+ FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
-//            ref = FirebaseDatabase.getInstance().getReference("Users").child("")
+            AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+            final EditText edittext = new EditText(getContext());
+            alert.setMessage("Enter the name of the group");
+            alert.setTitle("Creating");
+            alert.setView(edittext);
+            alert.setPositiveButton("Confirm", (dialog, whichButton) -> {
+                String groupName = edittext.getText().toString();
+                String id = FirebaseAuth.getInstance().getUid();
+                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("/Users/" + id);
+                reference.getDatabase();
+                reference.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        User user = (dataSnapshot.getValue(User.class));
+                        Group group = new Group();
+                        group.setUsers(new ArrayList<>());
+                        group.getUsers().add(user);
+                        group.setName(groupName);
+                        FirebaseDatabase.getInstance().getReference("/Groups").push().setValue(group);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
+            });
+            alert.setNegativeButton("Cancel", (dialog, whichButton) -> {
+            });
+            alert.show();
         }
-        void fetchDataFromFirebase() {
-            ref = FirebaseDatabase.getInstance().getReference("Users");
-            dataListener = new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildKey) {
-                    int index = 0;
-                    if (previousChildKey != null)
-                        index = getIndexForKey(previousChildKey, users) + 1;
-                    users.add(index, snapshot.getValue(User.class));
-                    fundsAdapter.notifyItemInserted(users.size());
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot snapshot, String previousChildKey) {
-                    int index = getIndexForKey(snapshot.getKey(), users);
-                    users.set(index, snapshot.getValue(User.class));
-                    fundsAdapter.notifyItemChanged(index);
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                    int index = getIndexForKey(snapshot.getKey(), users);
-                    users.remove(index);
-                    fundsAdapter.notifyItemRemoved(index);
-                    fundsAdapter.notifyItemRangeChanged(0, users.size());
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot snapshot, String previousChildKey) {
-                    int oldIndex = getIndexForKey(snapshot.getKey(), users);
-                    users.remove(oldIndex);
-                    int newIndex = previousChildKey == null ? 0 : getIndexForKey(previousChildKey, users) + 1;
-                    users.add(newIndex, snapshot.getValue(User.class));
-                    fundsAdapter.notifyItemMoved(oldIndex, newIndex);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e("FirebaseReadError", "The read failed: " + error.getCode());
-                }
-            };
-            ref.addChildEventListener(dataListener);
-        }
-
-        private int getIndexForKey(String key, List<User> users) {
-            int index = 0;
-            for (User user : users) {
-                if (user.getPhone().equals(key)) {
-                    return index;
-                } else {
-                    index++;
-                }
-            }
-            throw new IllegalArgumentException("Key not found");
-        }
-
     }
 }
