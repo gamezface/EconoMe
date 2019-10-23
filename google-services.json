@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "683200172452",
+    "firebase_url": "https://econome-1a40f.firebaseio.com",
+    "project_id": "econome-1a40f",
+    "storage_bucket": "econome-1a40f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:683200172452:android:119eaddf595f51f6baf131",
+        "android_client_info": {
+          "package_name": "br.com.coutinhoanderson.econome"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "683200172452-9gdn4ajbla0682be1g8mjr3e4q173q77.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.coutinhoanderson.econome",
+            "certificate_hash": "ea10d579d6b4e59734b6f5b60bd0e9413d8d1697"
+          }
+        },
+        {
+          "client_id": "683200172452-5k6g7vachcd7tja1hk7dpm4m21oc9h5r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdX6b84kjnH6Ti2eBpyljZLCYk_KFczOQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "683200172452-5k6g7vachcd7tja1hk7dpm4m21oc9h5r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

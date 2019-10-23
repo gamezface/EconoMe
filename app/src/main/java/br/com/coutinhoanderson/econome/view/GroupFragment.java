@@ -15,6 +15,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.SuccessContinuation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -79,10 +81,11 @@ public class GroupFragment extends Fragment {
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         User user = (dataSnapshot.getValue(User.class));
                         Group group = new Group();
-                        group.setUsers(new ArrayList<>());
-                        group.getUsers().add(user);
-                        group.setName(groupName);
-                        FirebaseDatabase.getInstance().getReference("/Groups").push().setValue(group);
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("/Groups").push();
+                        ref.setValue(group);
+                        ref.setValue(user);
+                        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("/Users").child(FirebaseAuth.getInstance().getUid());
+
                     }
 
                     @Override
