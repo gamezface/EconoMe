@@ -14,11 +14,11 @@ import java.util.List;
 import br.com.coutinhoanderson.econome.R;
 import br.com.coutinhoanderson.econome.model.User;
 
-public class FundsAdapter extends RecyclerView.Adapter<FundsAdapter.ViewHolder> {
-    List<User> users;
+public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder> {
+    private List<User> users;
     private Context mContext;
 
-    public FundsAdapter(Context context, List<User> users) {
+    public GroupsAdapter(Context context, List<User> users) {
         this.mContext = context;
         this.users = users;
     }
@@ -34,8 +34,8 @@ public class FundsAdapter extends RecyclerView.Adapter<FundsAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User user = users.get(position);
-        holder.budget.setText(user.getBudget());
         holder.name.setText(user.getName());
+        holder.budget.setText(user.getBudget());
         holder.phone.setText(user.getPhone());
     }
 
@@ -45,15 +45,15 @@ public class FundsAdapter extends RecyclerView.Adapter<FundsAdapter.ViewHolder> 
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        TextView budget;
         TextView name;
         TextView phone;
+        TextView budget;
 
         ViewHolder(View itemView) {
             super(itemView);
-            budget = itemView.findViewById(R.id.user_budget);
             name = itemView.findViewById(R.id.user_name);
             phone = itemView.findViewById(R.id.user_phone);
+            budget = itemView.findViewById(R.id.total_budget);
         }
 
     }

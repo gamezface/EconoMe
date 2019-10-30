@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +22,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import java.util.Objects;
 import br.com.coutinhoanderson.econome.R;
 import br.com.coutinhoanderson.econome.adapter.ExpenseAdapter;
 import br.com.coutinhoanderson.econome.model.Expense;
-import br.com.coutinhoanderson.econome.model.User;
+import br.com.coutinhoanderson.econome.model.Group;
 
 
 public class BillFragment extends Fragment {
@@ -44,7 +46,11 @@ public class BillFragment extends Fragment {
     private ExpenseAdapter expenseAdapter;
     private ChildEventListener dataListener;
     private DatabaseReference ref;
-    TextView userBudget;
+    Group group;
+    private String groupKey = "";
+    TextView totalBudget;
+    TextView remainFunds;
+    TextView totalSpent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,7 +81,10 @@ public class BillFragment extends Fragment {
     private void initView(View view){
         expenseList = view.findViewById(R.id.list);
         recyclerFilter = view.findViewById(R.id.editText);
-        userBudget = view.findViewById(R.id.user_budget);
+        totalBudget = view.findViewById(R.id.total_budget);
+        totalSpent = view.findViewById(R.id.total_spents);
+        remainFunds = view.findViewById(R.id.remain_funds);
+        group = new Group();
     }
 
     @Override
@@ -86,6 +95,7 @@ public class BillFragment extends Fragment {
         expenseList.setAdapter(expenseAdapter);
         FirebaseServer fs = new FirebaseServer();
         fs.fetchDataFromFirebase();
+        fs.getFundsAndBudgets();
     }
 
     private void filter(String text) {
@@ -102,29 +112,70 @@ public class BillFragment extends Fragment {
     }
 
     private class FirebaseServer {
-        void fetchDataFromFirebase() {
-            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("/Users/" + FirebaseAuth.getInstance().getUid());
-            reference.getDatabase();
-            reference.addValueEventListener(new ValueEventListener() {
+        void getFundsAndBudgets() {
+            ref = FirebaseDatabase.getInstance().getReference("Groups");
+            ChildEventListener listener = new ChildEventListener() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    User user = (dataSnapshot.getValue(User.class));
-                    userBudget.setText(user.getBudget());
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    Group currentGroup = dataSnapshot.getValue(Group.class);
+                    String key = dataSnapshot.getKey();
+                    Query groupsByUser = ref
+                            .child(dataSnapshot.getKey())
+                            .child("members").orderByKey()
+                            .equalTo(FirebaseAuth.getInstance().getUid());
+                    groupsByUser.addValueEventListener(new ValueEventListener() {
+
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                groupKey = key;
+                                group = currentGroup;
+                                remainFunds.setText(group.getRemainingFunds());
+                                totalBudget.setText(group.getTotalBudget());
+                                if (group.getTotalSpent() != null)
+                                    totalSpent.setText(group.getTotalSpent());
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                 }
-            });
+            };
+            ref.addChildEventListener(listener);
+        }
 
+        void fetchDataFromFirebase() {
             ref = FirebaseDatabase.getInstance().getReference(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid() + "/expenses");
             dataListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildKey) {
                     int index = 0;
+                    Expense expense = snapshot.getValue(Expense.class);
                     if (previousChildKey != null)
                         index = getIndexForKey(previousChildKey, expenses) + 1;
-                    expenses.add(index, snapshot.getValue(Expense.class));
+                    expenses.add(index, expense);
                     expenseAdapter.notifyItemInserted(expenses.size());
                 }
 
@@ -161,15 +212,19 @@ public class BillFragment extends Fragment {
         }
 
         private int getIndexForKey(String key, List<Expense> expenses) {
-            int index = 0;
-            for (Expense expense : expenses) {
-                if (expense.getExpenseId().equals(key)) {
-                    return index;
-                } else {
-                    index++;
+            try {
+                int index = 0;
+                for (Expense expense : expenses) {
+                    if (expense.getExpenseId().equals(key)) {
+                        return index;
+                    } else {
+                        index++;
+                    }
                 }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Key not found");
             }
-            throw new IllegalArgumentException("Key not found");
+            return -1;
         }
 
     }

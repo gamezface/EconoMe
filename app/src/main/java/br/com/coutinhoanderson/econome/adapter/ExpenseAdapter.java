@@ -70,18 +70,18 @@ public class ExpenseAdapter extends RecyclerSwipeAdapter<ExpenseAdapter.SimpleVi
     @Override
     public void onBindViewHolder(SimpleViewHolder holder, int position) {
         Expense item = items.get(position);
-        holder.swipeLayout.addSwipeListener(new SimpleSwipeListener() {
-            @Override
-            public void onOpen(SwipeLayout layout) {
-                YoYo.with(Techniques.Tada).duration(500).delay(100).playOn(layout.findViewById(R.id.delete_button));
-            }
-        });
-        holder.buttonDelete.setOnClickListener(view -> {
-            alertDialog = builder.setPositiveButton("Confirm", (dialog, which) -> {
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                database.getReference().child(FirebaseAuth.getInstance().getCurrentUser().getUid() + "/expenses").child(item.getExpenseId()).removeValue();
-            }).show();
-        });
+//        holder.swipeLayout.addSwipeListener(new SimpleSwipeListener() {
+//            @Override
+//            public void onOpen(SwipeLayout layout) {
+//                YoYo.with(Techniques.Tada).duration(500).delay(100).playOn(layout.findViewById(R.id.delete_button));
+//            }
+//        });
+//        holder.buttonDelete.setOnClickListener(view -> {
+//            alertDialog = builder.setPositiveButton("Confirm", (dialog, which) -> {
+//                FirebaseDatabase database = FirebaseDatabase.getInstance();
+//                database.getReference().child(FirebaseAuth.getInstance().getCurrentUser().getUid() + "/expenses").child(item.getExpenseId()).removeValue();
+//            }).show();
+//        });
         holder.expenseName.setText(item.getName());
         holder.cost.setText(item.getCost());
         holder.categoryName.setText(item.getCategory());
