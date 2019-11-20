@@ -1,6 +1,7 @@
 package br.com.coutinhoanderson.econome.view;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +9,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -27,6 +29,7 @@ import java.util.Objects;
 import br.com.coutinhoanderson.econome.R;
 import br.com.coutinhoanderson.econome.model.Expense;
 import br.com.coutinhoanderson.econome.model.Group;
+import br.com.coutinhoanderson.econome.utils.DoubleFormat;
 import br.com.coutinhoanderson.econome.utils.FormValidator;
 
 public class AddExpenseActivity extends AppCompatActivity {
@@ -92,10 +95,10 @@ public class AddExpenseActivity extends AppCompatActivity {
                                                     group.setTotalSpent("0");
                                                 }
                                                 group.setRemainingFunds(String.valueOf(
-                                                        Double.valueOf(group.getRemainingFunds()) - Double.valueOf(cost.getEditText().getText().toString()))
+                                                        DoubleFormat.round(Double.valueOf(group.getRemainingFunds()) - Double.valueOf(cost.getEditText().getText().toString())))
                                                 );
                                                 group.setTotalSpent(String.valueOf(
-                                                        Double.valueOf(group.getTotalSpent()) + Double.valueOf(cost.getEditText().getText().toString()))
+                                                        DoubleFormat.round(Double.valueOf(group.getTotalSpent()) + Double.valueOf(cost.getEditText().getText().toString())))
                                                 );
                                                 map.put(dataSnapshot.getKey(), group);
                                                 reference.updateChildren(map);
@@ -172,8 +175,7 @@ public class AddExpenseActivity extends AppCompatActivity {
                 }
             };
             ref1.addChildEventListener(listener);
-
-            finish();
+                finish();
         }
     }
 }

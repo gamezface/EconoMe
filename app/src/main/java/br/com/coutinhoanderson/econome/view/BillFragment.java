@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,13 +27,16 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import br.com.coutinhoanderson.econome.R;
 import br.com.coutinhoanderson.econome.adapter.ExpenseAdapter;
 import br.com.coutinhoanderson.econome.model.Expense;
 import br.com.coutinhoanderson.econome.model.Group;
+import br.com.coutinhoanderson.econome.utils.DoubleFormat;
 
 
 public class BillFragment extends Fragment {
@@ -46,8 +50,10 @@ public class BillFragment extends Fragment {
     private ExpenseAdapter expenseAdapter;
     private ChildEventListener dataListener;
     private DatabaseReference ref;
+    private ChildEventListener listener;
+    private DatabaseReference ref2;
     Group group;
-    private String groupKey = "";
+    String groupKey = "";
     TextView totalBudget;
     TextView remainFunds;
     TextView totalSpent;
@@ -109,17 +115,18 @@ public class BillFragment extends Fragment {
     public void onPause() {
         super.onPause();
         ref.removeEventListener(dataListener);
+        ref2.removeEventListener(listener);
     }
 
     private class FirebaseServer {
         void getFundsAndBudgets() {
-            ref = FirebaseDatabase.getInstance().getReference("Groups");
-            ChildEventListener listener = new ChildEventListener() {
+            ref2 = FirebaseDatabase.getInstance().getReference("Groups");
+            listener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     Group currentGroup = dataSnapshot.getValue(Group.class);
                     String key = dataSnapshot.getKey();
-                    Query groupsByUser = ref
+                    Query groupsByUser = ref2
                             .child(dataSnapshot.getKey())
                             .child("members").orderByKey()
                             .equalTo(FirebaseAuth.getInstance().getUid());
@@ -146,7 +153,37 @@ public class BillFragment extends Fragment {
 
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    Group currentGroup = dataSnapshot.getValue(Group.class);
+                    String key = dataSnapshot.getKey();
+                    Query groupsByUser = ref2
+                            .child(dataSnapshot.getKey())
+                            .child("members").orderByKey()
+                            .equalTo(FirebaseAuth.getInstance().getUid());
+                    groupsByUser.addValueEventListener(new ValueEventListener() {
 
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                groupKey = key;
+                                group = currentGroup;
+                                remainFunds.setText(group.getRemainingFunds());
+                                totalBudget.setText(group.getTotalBudget());
+                                if(Double.valueOf(group.getRemainingFunds()) < 0){
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext()).setTitle("Warning")
+                                            .setMessage("You're out of funds ...")
+                                            .setPositiveButton("Ok", null);
+                                    builder.show();
+                                }
+                                if (group.getTotalSpent() != null)
+                                    totalSpent.setText(group.getTotalSpent());
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
                 }
 
                 @Override
@@ -163,7 +200,7 @@ public class BillFragment extends Fragment {
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                 }
             };
-            ref.addChildEventListener(listener);
+            ref2.addChildEventListener(listener);
         }
 
         void fetchDataFromFirebase() {
@@ -190,6 +227,23 @@ public class BillFragment extends Fragment {
                 public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                     int index = getIndexForKey(snapshot.getKey(), expenses);
                     expenses.remove(index);
+                    Expense expense = snapshot.getValue(Expense.class);
+                    if (expense != null) {
+                        Double value = Double.valueOf(expense.getCost());
+                        value = DoubleFormat.round(value);
+                        Double totalSpent = (Double.valueOf(group.getTotalSpent()));
+                        totalSpent -= value;
+                        DoubleFormat.round(totalSpent);
+                        Double remainingFunds = (Double.valueOf(group.getRemainingFunds()));
+                        remainingFunds += value;
+                        remainingFunds = DoubleFormat.round(remainingFunds);
+                        group.setTotalSpent(String.valueOf(totalSpent));
+                        group.setRemainingFunds(String.valueOf(remainingFunds));
+                        Map<String, Object> map = new HashMap<>();
+                        map.put(groupKey, group);
+                        FirebaseDatabase.getInstance().getReference("/Groups").updateChildren(map);
+                    }
+
                     expenseAdapter.notifyItemRemoved(index);
                     expenseAdapter.notifyItemRangeChanged(0, expenses.size());
                 }

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +34,7 @@ import br.com.coutinhoanderson.econome.R;
 import br.com.coutinhoanderson.econome.adapter.GroupsAdapter;
 import br.com.coutinhoanderson.econome.model.Group;
 import br.com.coutinhoanderson.econome.model.User;
+import br.com.coutinhoanderson.econome.utils.DoubleFormat;
 
 public class GroupFragment extends Fragment {
     private ConstraintLayout addMember;
@@ -84,14 +86,11 @@ public class GroupFragment extends Fragment {
                         Map<String, Object> groupMap = new HashMap<>();
                         groupMap.put("name", groupName);
                         groupMap.put("totalBudget", user.getBudget());
-                        groupMap.put("remainingBudget", user.getBudget());
+                        groupMap.put("remainingFunds", user.getBudget());
+                        groupMap.put("totalSpent", "0");
                         groupMap.put("members", users);
                         ref.setValue(groupMap).addOnCompleteListener(task -> {
-                            AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-                            alert.setMessage("Confirmation");
-                            alert.setTitle("Group created");
-                            alert.setView(edittext);
-                            alert.setPositiveButton("Ok", null);
+                            Toast.makeText(getContext(),"Group Created",Toast.LENGTH_LONG).show();
                         });
 //                        ref.setValue(user);
 //                        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("/Users").child(FirebaseAuth.getInstance().getUid());
@@ -120,13 +119,14 @@ public class GroupFragment extends Fragment {
                                         group.getMembers().put(id, user);
                                         Map<String, Object> map = new HashMap<>();
                                             group.setRemainingFunds(String.valueOf(
-                                                    Double.valueOf(group.getRemainingFunds()) + Double.valueOf(user.getBudget()))
+                                                    DoubleFormat.round(Double.valueOf(group.getRemainingFunds()) + Double.valueOf(user.getBudget())))
                                             );
                                             group.setTotalBudget(String.valueOf(
-                                                    Double.valueOf(group.getTotalBudget()) + Double.valueOf(user.getBudget()))
+                                                    DoubleFormat.round(Double.valueOf(group.getTotalBudget()) + Double.valueOf(user.getBudget())))
                                             );
                                         map.put(dataSnapshot.getKey(), group);
                                         ref.updateChildren(map);
+                                        Toast.makeText(getContext(),"Group Joined",Toast.LENGTH_LONG).show();
                                     }
 
                                     @Override
