@@ -18,7 +18,9 @@ import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import br.com.coutinhoanderson.econome.R;
 import br.com.coutinhoanderson.econome.model.Expense;
@@ -75,7 +77,9 @@ public class ExpenseAdapter extends RecyclerSwipeAdapter<ExpenseAdapter.SimpleVi
             holder.buttonDelete.setOnClickListener(view -> builder.setPositiveButton("Confirm", (dialog, which) -> {
                 items.remove(item);
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
-                database.getReference().child("/Groups/" + item.getExpenseId() + "/expenses").child(String.valueOf(position)).removeValue();
+                Map<String, Object> map = new HashMap<>();
+                map.put("expenses",items);
+                database.getReference().child("/Groups/" + item.getExpenseId()).updateChildren(map);// + "/expenses").child(String.valueOf(position)).removeValue();
                 notifyDataSetChanged();
             }).show());
             holder.expenseName.setText(item.getName());
