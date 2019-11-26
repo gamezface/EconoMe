@@ -9,9 +9,18 @@ import java.util.List;
 public class Group implements Parcelable {
     private String name;
     private HashMap<String,User> members;
+    private List<Expense> expenses;
     private String totalBudget;
     private String remainingFunds;
     private String totalSpent;
+
+    public List<Expense> getExpenses() {
+        return expenses;
+    }
+
+    public void setExpenses(List<Expense> expenses) {
+        this.expenses = expenses;
+    }
 
     public String getTotalBudget() {
         return totalBudget;

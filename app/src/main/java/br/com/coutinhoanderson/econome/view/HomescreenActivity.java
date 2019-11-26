@@ -20,7 +20,7 @@ public class HomescreenActivity extends AppCompatActivity {
                 NavigationManager.openFragment(getSupportFragmentManager(), new BillFragment(), "Home", R.id.fragment_container);
                 return true;
             case R.id.navigation_funds:
-                NavigationManager.openFragment(getSupportFragmentManager(), new GroupsFragment(), "Funds", R.id.fragment_container);
+                NavigationManager.openFragment(getSupportFragmentManager(), new FundsFragment(), "Funds", R.id.fragment_container);
                 return true;
             case R.id.navigation_group:
                 NavigationManager.openFragment(getSupportFragmentManager(), new GroupFragment(), "Funds", R.id.fragment_container);

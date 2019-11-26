@@ -26,6 +26,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,9 +90,7 @@ public class GroupFragment extends Fragment {
                         groupMap.put("remainingFunds", user.getBudget());
                         groupMap.put("totalSpent", "0");
                         groupMap.put("members", users);
-                        ref.setValue(groupMap).addOnCompleteListener(task -> {
-                            Toast.makeText(getContext(),"Group Created",Toast.LENGTH_LONG).show();
-                        });
+                        ref.setValue(groupMap).addOnCompleteListener(task -> Toast.makeText(getContext(),"Group Created",Toast.LENGTH_LONG).show());
 //                        ref.setValue(user);
 //                        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("/Users").child(FirebaseAuth.getInstance().getUid());
                     }

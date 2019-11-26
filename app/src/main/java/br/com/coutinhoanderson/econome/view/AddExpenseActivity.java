@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -91,6 +92,12 @@ public class AddExpenseActivity extends AppCompatActivity {
                                             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                                                 Group group = (dataSnapshot.getValue(Group.class));
                                                 Map<String, Object> map = new HashMap<>();
+                                                if(group.getExpenses() == null){
+                                                    group.setExpenses(new ArrayList<>());
+                                                }
+                                                group.getExpenses().add(new Expense(expenseName.getEditText().getText().toString(),
+                                                        cost.getEditText().getText().toString(),
+                                                        categoryName.getEditText().getText().toString(),groupKey));
                                                 if (group.getTotalSpent() == null) {
                                                     group.setTotalSpent("0");
                                                 }
@@ -103,48 +110,19 @@ public class AddExpenseActivity extends AppCompatActivity {
                                                 map.put(dataSnapshot.getKey(), group);
                                                 reference.updateChildren(map);
                                             }
-
                                             @Override
                                             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                                                Log.d("teste", dataSnapshot.getKey());
                                             }
-
                                             @Override
                                             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                                                Log.d("teste", dataSnapshot.getKey());
                                             }
-
                                             @Override
                                             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                                                Log.d("teste", dataSnapshot.getKey());
                                             }
-
                                             @Override
                                             public void onCancelled(@NonNull DatabaseError databaseError) {
-
                                             }
                                         });
-                                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                                DatabaseReference ref = database.getReference().child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid() + "/expenses");
-                                Bundle parameters = getIntent().getExtras();
-
-                                if (parameters != null && parameters.getBoolean("EDIT_MODE")) {
-                                    Map<String, Object> expenseMap = new HashMap<String, Object>();
-                                    expenseMap.put("category", categoryName.getEditText().getText().toString());
-                                    expenseMap.put("cost", cost.getEditText().getText().toString());
-                                    expenseMap.put("name", expenseName.getEditText().getText().toString());
-                                    ref.child(expense.getExpenseId()).updateChildren(expenseMap);
-                                    Intent returnIntent = new Intent();
-                                    setResult(Activity.RESULT_OK, returnIntent);
-                                } else {
-                                    String key = database.getReference("expenses").push().getKey();
-                                    if (key != null) {
-                                        ref.child(key).setValue(new Expense(expenseName.getEditText().getText().toString(),
-                                                cost.getEditText().getText().toString(),
-                                                categoryName.getEditText().getText().toString(),
-                                                key));
-                                    }
-                                }
                             }
                         }
 

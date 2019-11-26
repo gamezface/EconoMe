@@ -15,6 +15,11 @@ public class Expense implements Parcelable {
         this.cost = cost;
         this.category = category;
     }
+    public Expense(String name, String cost, String category) {
+        this.name = name;
+        this.cost = cost;
+        this.category = category;
+    }
 
     private Expense(Parcel expense) {
         this.name = expense.readString();

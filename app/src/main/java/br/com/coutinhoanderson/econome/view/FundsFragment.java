@@ -29,19 +29,17 @@ import br.com.coutinhoanderson.econome.adapter.GroupsAdapter;
 import br.com.coutinhoanderson.econome.model.Group;
 import br.com.coutinhoanderson.econome.model.User;
 
-public class GroupsFragment extends Fragment {
-    List<User> users;
+public class FundsFragment extends Fragment {
+    private List<User> users;
     private GroupsAdapter groupsAdapter;
-    private ChildEventListener dataListener;
     private DatabaseReference ref;
     private TextView groupName;
-    private RecyclerView recyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_funds, container, false);
-        recyclerView = view.findViewById(R.id.people_list);
+        RecyclerView recyclerView = view.findViewById(R.id.people_list);
         groupName = view.findViewById(R.id.group_name);
         users = new ArrayList<>();
         groupsAdapter = new GroupsAdapter(getContext(),users);
@@ -108,17 +106,6 @@ public class GroupsFragment extends Fragment {
             ref.addChildEventListener(listener);
         }
 
-        private int getIndexForKey(String key, List<User> users) {
-            int index = 0;
-            for (User user : users) {
-                if (user.getPhone().equals(key)) {
-                    return index;
-                } else {
-                    index++;
-                }
-            }
-            throw new IllegalArgumentException("Key not found");
-        }
     }
     }
 
