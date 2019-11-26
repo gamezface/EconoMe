@@ -24,6 +24,8 @@ import java.util.Map;
 
 import br.com.coutinhoanderson.econome.R;
 import br.com.coutinhoanderson.econome.model.Expense;
+import br.com.coutinhoanderson.econome.model.Group;
+import br.com.coutinhoanderson.econome.utils.DoubleFormat;
 
 public class ExpenseAdapter extends RecyclerSwipeAdapter<ExpenseAdapter.SimpleViewHolder> {
 
@@ -47,9 +49,11 @@ public class ExpenseAdapter extends RecyclerSwipeAdapter<ExpenseAdapter.SimpleVi
 
     private List<Expense> items;
     private AlertDialog.Builder builder;
+    private Group group;
 
-    public ExpenseAdapter(Context context, List<Expense> items) {
+    public ExpenseAdapter(Context context, List<Expense> items, Group group) {
         this.items = items;
+        this.group = group;
         builder = new AlertDialog.Builder(context).setTitle("Warning")
                 .setMessage("You're about to remove a expense ...")
                 .setNegativeButton("Cancel", null);
@@ -76,9 +80,17 @@ public class ExpenseAdapter extends RecyclerSwipeAdapter<ExpenseAdapter.SimpleVi
             });
             holder.buttonDelete.setOnClickListener(view -> builder.setPositiveButton("Confirm", (dialog, which) -> {
                 items.remove(item);
+                group.setRemainingFunds(String.valueOf(
+                        DoubleFormat.round(Double.valueOf(group.getRemainingFunds()) + Double.valueOf(item.getCost())))
+                );
+                group.setTotalSpent(String.valueOf(
+                        DoubleFormat.round(Double.valueOf(group.getTotalSpent()) - Double.valueOf(item.getCost())))
+                );
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 Map<String, Object> map = new HashMap<>();
                 map.put("expenses",items);
+                map.put("totalSpent",group.getTotalSpent());
+                map.put("remainingFunds",group.getRemainingFunds());
                 database.getReference().child("/Groups/" + item.getExpenseId()).updateChildren(map);// + "/expenses").child(String.valueOf(position)).removeValue();
                 notifyDataSetChanged();
             }).show());

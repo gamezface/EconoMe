@@ -127,7 +127,7 @@ public class BillFragment extends Fragment {
                                     expenses = null;
                                     expenses = group.getExpenses();
                                     expenseAdapter = null;
-                                    expenseAdapter = new ExpenseAdapter(getContext(), expenses);
+                                    expenseAdapter = new ExpenseAdapter(getContext(), expenses, group);
                                     expenseList.setAdapter(expenseAdapter);
 //                                    for (int i = expenses.size(); i < group.getExpenses().size(); i++) {
 //                                        expenses.add(group.getExpenses().get(i));
@@ -162,7 +162,7 @@ public class BillFragment extends Fragment {
                                     expenses = null;
                                     expenses = group.getExpenses();
                                     expenseAdapter = null;
-                                    expenseAdapter = new ExpenseAdapter(getContext(), expenses);
+                                    expenseAdapter = new ExpenseAdapter(getContext(), expenses, group);
                                     expenseList.setAdapter(expenseAdapter);
 //                                    for (int i = expenses.size(); i < group.getExpenses().size(); i++) {
 //                                        expenses.add(group.getExpenses().get(i));
